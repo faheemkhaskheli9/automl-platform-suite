@@ -1,0 +1,5 @@
+[project]
+name = "automl-platform-suite"
+version = "0.1.0"
+description = "AutoML Platform Suite: dataset-to-model web platform, experiment framework, and evaluation dashboard behind one feature picker"
+requires-python = ">=3.10"
