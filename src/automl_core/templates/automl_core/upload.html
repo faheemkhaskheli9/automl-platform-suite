@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AutoML Platform &mdash; Upload Dataset</title>
+</head>
+<body>
+  {% load automl_extras %}
+  <h1>Upload a dataset</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+  </form>
+
+  {% if error %}
+    <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
+
+  {% if preview %}
+    <h2>Preview: {{ preview.filename }}</h2>
+    <p>{{ preview.n_rows }} rows &times; {{ preview.n_cols }} columns</p>
+    <table border="1">
+      <thead>
+        <tr>
+          {% for col in preview.columns %}
+            <th>{{ col }} ({{ preview.dtypes|dictkey:col }})</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview.preview_rows %}
+          <tr>
+            {% for col in preview.columns %}
+              <td>{{ row|dictkey:col }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</body>
+</html>

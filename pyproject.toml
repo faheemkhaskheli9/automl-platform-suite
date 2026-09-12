@@ -3,3 +3,14 @@ name = "automl-platform-suite"
 version = "0.1.0"
 description = "AutoML Platform Suite: dataset-to-model web platform, experiment framework, and evaluation dashboard behind one feature picker"
 requires-python = ">=3.10"
+dependencies = [
+    "Django>=5.0,<6.0",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+]
