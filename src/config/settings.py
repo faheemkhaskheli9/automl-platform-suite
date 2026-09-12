@@ -18,6 +18,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
+    "django.contrib.auth",
     "django.contrib.staticfiles",
     "automl_core",
 ]
@@ -61,3 +62,19 @@ STATIC_URL = "static/"
 AUTOML_MAX_UPLOAD_BYTES = int(os.environ.get("AUTOML_MAX_UPLOAD_BYTES", 25 * 1024 * 1024))
 # How many rows to show in the post-upload preview table.
 AUTOML_PREVIEW_ROWS = int(os.environ.get("AUTOML_PREVIEW_ROWS", 10))
+
+# --- Celery: background training/tuning jobs (Phase 1 job model) ------
+# A real Redis broker is the production boundary (README.md Section 3); this
+# CPU-only sandbox has no Redis running, so CELERY_TASK_ALWAYS_EAGER defaults
+# on, which runs `.delay()` synchronously in-process -- same task code path,
+# no broker required. Flip CELERY_TASK_ALWAYS_EAGER=0 with a real
+# CELERY_BROKER_URL to run tasks on an actual worker.
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+# Deliberately NOT propagating eager-mode exceptions to the caller of
+# submit_job()/.delay() -- a real (non-eager) .delay() never raises
+# synchronously even when the task later fails, so keeping propagation off
+# here means dev/test behavior matches production: callers must check the
+# Job row's status, not wrap submit_job() in a try/except.
+CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "1") == "1"
+CELERY_TASK_EAGER_PROPAGATES = False

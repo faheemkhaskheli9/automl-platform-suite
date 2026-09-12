@@ -17,7 +17,16 @@ Dashboard (pick a feature) -> Upload Dataset -> [Quick multi-model train | Searc
   spaces, Optuna HPO loop, MLflow tracking
 - `evaluate` feature app — ported from `ml-evaluation-dashboard`: ingestion
   adapters per model type, unified dashboard reading both other apps' runs
-- `jobs` — per-user job/run history, background execution (Celery + Redis)
+- `jobs` — per-user job/run history, background execution (Celery + Redis).
+  Implemented as `automl_core.models.Job` + `automl_core.tasks.submit_job`
+  (Phase 1): a feature app calls `submit_job(owner=..., feature=...,
+  dotted_path=...)` and gets a `Job` row back; the shared `run_job` Celery
+  task drives `queued -> running -> succeeded/failed` and always re-raises
+  on failure so a broken task is never silently marked anything but failed.
+  This sandbox has no Redis broker, so `CELERY_TASK_ALWAYS_EAGER=1` (the
+  default here) runs `.delay()` synchronously in-process against the same
+  task code a real worker would run — flip it off with a real
+  `CELERY_BROKER_URL` for an actual deployment.
 
 ## Design Notes
 
