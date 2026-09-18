@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - AutoML Platform Suite{% endblock %}
+{% block content %}
+  <h1>Pick a feature</h1>
+  <p class="muted">
+    Upload a dataset, then train, tune, or evaluate models against it --
+    all from one place.
+  </p>
+
+  <div class="feature-grid">
+    {% for feature in features %}
+      <div class="feature-card">
+        <h3>{{ feature.label }}</h3>
+        <p>{{ feature.description }}</p>
+        {% if feature.is_available %}
+          <a class="button" href="{% url feature.url_name %}">Open</a>
+        {% else %}
+          <span class="badge soon">Coming soon</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

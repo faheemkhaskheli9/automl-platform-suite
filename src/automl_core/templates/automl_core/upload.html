@@ -1,21 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>AutoML Platform &mdash; Upload Dataset</title>
-</head>
-<body>
-  {% load automl_extras %}
+{% extends "base.html" %}
+{% load automl_extras %}
+{% block title %}Upload Dataset - AutoML Platform Suite{% endblock %}
+{% block content %}
   <h1>Upload a dataset</h1>
 
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" class="stack">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Upload</button>
   </form>
 
   {% if error %}
-    <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
+    <p class="errorlist"><strong>Error:</strong> {{ error }}</p>
   {% endif %}
 
   {% if preview %}
@@ -40,5 +36,4 @@
       </tbody>
     </table>
   {% endif %}
-</body>
-</html>
+{% endblock %}
