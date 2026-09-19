@@ -8,10 +8,11 @@ layer up, to whole feature apps (Train/Tune/Evaluate), so a later phase plugs
 in a feature by adding one `register_feature(...)` call instead of editing
 the dashboard template.
 
-Train (issue #1's upload/preview flow) is the only feature with a real URL
-today; Tune and Evaluate register with `url_name=None` so the dashboard shows
-them as "coming soon" instead of a dangling/guessed link, until Phase 3/4
-land their own views (README.md Section 5).
+Train now has its own feature app (`train`, issue #5: target-column
+selection + task-type detection, on top of automl_core's upload/preview
+flow). Tune and Evaluate still register with `url_name=None` so the
+dashboard shows them as "coming soon" instead of a dangling/guessed link,
+until Phase 3/4 land their own views (README.md Section 5).
 """
 from __future__ import annotations
 
@@ -51,10 +52,10 @@ register_feature(
         key="train",
         label="Train",
         description=(
-            "Upload a dataset, validate it, and preview it -- the shared "
-            "flow every model type builds on before training."
+            "Upload a dataset, pick a target column, and let the platform "
+            "detect classification vs. regression before training."
         ),
-        url_name="automl_core:upload_dataset",
+        url_name="train:select_target",
     )
 )
 register_feature(

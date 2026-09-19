@@ -103,12 +103,15 @@ def _read_dataframe(fileobj: BinaryIO, filename: str) -> pd.DataFrame:
     return df
 
 
-def validate_dataset(fileobj: BinaryIO, filename: str, *, preview_rows: int = 10) -> DatasetPreview:
-    """Validate an uploaded tabular file and return a preview.
+def load_dataframe(fileobj: BinaryIO, filename: str) -> pd.DataFrame:
+    """Validate an uploaded tabular file and return the *full* parsed
+    DataFrame (same checks as `validate_dataset`, factored out so a feature
+    app that needs more than the preview's first N rows -- e.g. Train's
+    target-column selection, issue #5 -- doesn't have to re-implement or
+    duplicate this validation).
 
-    Never returns a partial result: the dataframe is fully parsed and every
-    check below passes, or a `DatasetValidationError` is raised and nothing
-    is returned/cached.
+    Never returns a partial result: every check below passes, or a
+    `DatasetValidationError` is raised and nothing is returned.
     """
     df = _read_dataframe(fileobj, filename)
 
@@ -120,6 +123,7 @@ def validate_dataset(fileobj: BinaryIO, filename: str, *, preview_rows: int = 10
     # Header shape (missing/duplicate names) was already checked in
     # _read_dataframe against the raw header, before pandas could mangle it.
     columns = [str(c) for c in df.columns]
+    df.columns = columns
 
     empty_cols = [c for c in columns if df[c].isna().all()]
     if empty_cols:
@@ -127,6 +131,20 @@ def validate_dataset(fileobj: BinaryIO, filename: str, *, preview_rows: int = 10
             f"Column(s) entirely empty: {', '.join(empty_cols)}."
         )
 
+    return df
+
+
+def load_dataframe_bytes(content: bytes, filename: str) -> pd.DataFrame:
+    """Convenience wrapper for callers holding raw bytes (e.g. Django's
+    `UploadedFile.read()`) instead of a seekable file object."""
+    return load_dataframe(io.BytesIO(content), filename)
+
+
+def validate_dataset(fileobj: BinaryIO, filename: str, *, preview_rows: int = 10) -> DatasetPreview:
+    """Validate an uploaded tabular file and return a preview."""
+    df = load_dataframe(fileobj, filename)
+
+    columns = list(df.columns)
     dtypes = {c: str(df[c].dtype) for c in columns}
     head = df.head(preview_rows)
     # NaN -> None so the preview serializes cleanly (json/template) without

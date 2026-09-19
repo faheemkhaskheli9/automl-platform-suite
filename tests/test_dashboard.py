@@ -1,7 +1,8 @@
 """Dashboard shell tests (issue #4): the feature-picker home view must be
 login-gated, list all 3 platform features (Train/Tune/Evaluate) with a
-description each, and link the one already-implemented feature (Train,
-issue #1's upload/preview flow) to its real URL rather than a stub."""
+description each, and link the one already-implemented feature (Train) to
+its real URL rather than a stub. Train's own flow (issue #5: upload -> pick
+target column -> task-type detection) lives at `train:select_target`."""
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
@@ -41,7 +42,7 @@ def test_home_links_train_to_its_own_upload_flow(client, user):
     client.login(username="alice", password="s3cret-pass!")
     resp = client.get(reverse("dashboard:home"))
     content = resp.content.decode()
-    assert reverse("automl_core:upload_dataset") in content
+    assert reverse("train:select_target") in content
 
 
 def test_home_train_is_open_tune_and_evaluate_are_coming_soon(client, user):

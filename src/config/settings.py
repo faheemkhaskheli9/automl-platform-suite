@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "automl_core",
     "dashboard",
+    "train",
 ]
 
 MIDDLEWARE = [

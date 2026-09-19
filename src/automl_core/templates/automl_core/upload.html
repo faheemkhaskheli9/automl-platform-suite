@@ -15,25 +15,6 @@
   {% endif %}
 
   {% if preview %}
-    <h2>Preview: {{ preview.filename }}</h2>
-    <p>{{ preview.n_rows }} rows &times; {{ preview.n_cols }} columns</p>
-    <table border="1">
-      <thead>
-        <tr>
-          {% for col in preview.columns %}
-            <th>{{ col }} ({{ preview.dtypes|dictkey:col }})</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in preview.preview_rows %}
-          <tr>
-            {% for col in preview.columns %}
-              <td>{{ row|dictkey:col }}</td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% include "automl_core/_dataset_preview.html" %}
   {% endif %}
 {% endblock %}

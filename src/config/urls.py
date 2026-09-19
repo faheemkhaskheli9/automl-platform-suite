@@ -14,4 +14,5 @@ urlpatterns = [
     ),
     path("", include("automl_core.urls")),
     path("", include("dashboard.urls")),
+    path("", include("train.urls")),
 ]

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Train: Select Target Column - AutoML Platform Suite{% endblock %}
+{% block content %}
+  <h1>Train: select a target column</h1>
+
+  <h2>1. Upload a dataset</h2>
+  <form method="post" enctype="multipart/form-data" class="stack">
+    {% csrf_token %}
+    {{ upload_form.as_p }}
+    <button type="submit">Upload</button>
+  </form>
+
+  {% if error %}
+    <p class="errorlist"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
+
+  {% if preview %}
+    {% include "automl_core/_dataset_preview.html" %}
+
+    <h2>2. Pick a target column</h2>
+    <form method="post" class="stack">
+      {% csrf_token %}
+      <input type="hidden" name="dataset_b64" value="{{ dataset_b64 }}">
+      <input type="hidden" name="dataset_filename" value="{{ preview.filename }}">
+      <p>
+        <label for="id_target_column">Target column</label>
+        <select name="target_column" id="id_target_column">
+          {% for col in preview.columns %}
+            <option value="{{ col }}"{% if col == selected_column %} selected{% endif %}>{{ col }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        <label for="id_task_type_override">Task type</label>
+        <select name="task_type_override" id="id_task_type_override">
+          <option value=""{% if not selected_override %} selected{% endif %}>Auto-detect</option>
+          {% for value, label in task_type_choices %}
+            <option value="{{ value }}"{% if value == selected_override %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <button type="submit">Analyze target column</button>
+    </form>
+  {% endif %}
+
+  {% if analysis %}
+    <h2>Result</h2>
+    <ul>
+      <li>Column: {{ analysis.column }}</li>
+      <li>Detected task type: {{ analysis.detected_task_type|default:"could not auto-detect" }}</li>
+      <li>
+        Effective task type: {{ analysis.effective_task_type }}
+        {% if analysis.overridden %}(overridden by user){% endif %}
+      </li>
+      <li>Distinct values: {{ analysis.n_unique }}</li>
+      <li>Missing values: {{ analysis.n_missing }} / {{ analysis.n_rows }}</li>
+    </ul>
+    {% if analysis.warnings %}
+      <ul class="warnings">
+        {% for warning in analysis.warnings %}
+          <li>{{ warning }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endif %}
+{% endblock %}
